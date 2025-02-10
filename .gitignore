@@ -1,6 +1,7 @@
 venv
 public
-db.sqlite3
+.sqlite3
+.pyc
 
 core/__pycache__
 agriculture/__pycache__
