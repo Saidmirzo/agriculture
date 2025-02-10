@@ -101,6 +101,10 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 ASGI_APPLICATION = 'core.asgi.application'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://agriculture-production-e531.up.railway.app",
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
