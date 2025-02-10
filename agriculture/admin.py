@@ -1,0 +1,16 @@
+from django.contrib import admin
+
+from django.contrib import admin
+from .models import Device, DeviceImage, DeviceData
+
+@admin.register(Device)
+class DeviceAdmin(admin.ModelAdmin):
+    list_display = ("device_id", "connection_status", "last_connected")
+
+@admin.register(DeviceImage)
+class DeviceImageAdmin(admin.ModelAdmin):
+    list_display = ("device", "image_path", "timestamp")
+
+@admin.register(DeviceData)
+class DeviceDataAdmin(admin.ModelAdmin):
+    list_display = ("device", "data_type", "data_value", "created_at")
