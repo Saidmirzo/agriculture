@@ -131,7 +131,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-ASGI_APPLICATION = 'agriculture.asgi.application'
 
 
 # Internationalization
