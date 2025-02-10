@@ -42,11 +42,7 @@ class DeviceDataView(APIView):
 
 class UploadImageView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-
-    @swagger_auto_schema(
-        request_body=UploadImageSerializer,  # Automatically generates request body documentation
-        operation_description="Upload an image from a device and save path to DB",
-    )
+    serializer_class = UploadImageSerializer
     def post(self, request, *args, **kwargs):
         device_id = request.data.get("device_id")
         image = request.FILES.get("image")  # Use FILES for image uploads
@@ -79,6 +75,7 @@ class UploadImageView(APIView):
 
 
 class UpdateLocationView(APIView):
+
     def post(self, request, *args, **kwargs):
         device_id = request.data.get("device_id")
         latitude = request.data.get("latitude")
