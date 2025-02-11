@@ -177,14 +177,16 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis-production-388d.up.railway.app", 6379)],
+            "hosts": [os.getenv("REDIS_URL", "redis://default:wXFFMLbrbUSUwdlvLxfSEXczZHJpimAu@redis-production-388d.up.railway.app:6379/0")],
         },
     },
 }
+
 
 MQTT_BROKER = '127.0.0.2'
 MQTT_PORT = 1883
