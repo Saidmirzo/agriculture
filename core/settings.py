@@ -176,13 +176,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+from decouple import config
 
-
+REDIS_URL = config('REDIS_URL')
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.getenv("REDIS_URL", "redis://default:wXFFMLbrbUSUwdlvLxfSEXczZHJpimAu@redis-production-388d.up.railway.app:6379/0")],
+            "hosts": [(REDIS_URL)],
         },
     },
 }
