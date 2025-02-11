@@ -121,16 +121,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 ASGI_APPLICATION = 'core.asgi.application'
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://agriculture-production-e531.up.railway.app",
-]
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -198,3 +189,9 @@ CHANNEL_LAYERS = {
 MQTT_BROKER = '127.0.0.2'
 MQTT_PORT = 1883
 MQTT_TOPIC_PREFIX = "devices/"
+
+if os.getenv("RAILWAY_ENV") != "production":
+    # Allow HTTP for local development
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False

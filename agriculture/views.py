@@ -98,7 +98,8 @@ class UpdateLocationView(APIView):
 
 
 
-class SendEventView(APIView):
+class SendEventView(CreateAPIView):
+    serializer_class=SendEventSerializer
     def post(self, request, *args, **kwargs):
         device_id = request.data.get("device_id")
         command = request.data.get("command")
