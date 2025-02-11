@@ -1,3 +1,4 @@
+anyio==4.8.0
 asgiref==3.8.1
 attrs==25.1.0
 autobahn==24.4.2
@@ -16,6 +17,7 @@ drf-spectacular==0.28.0
 drf-yasg==1.21.8
 gunicorn==23.0.0
 h11==0.14.0
+httptools==0.6.4
 hyperlink==21.0.0
 idna==3.10
 incremental==24.7.2
@@ -28,6 +30,7 @@ pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pycparser==2.22
 pyOpenSSL==25.0.0
+python-dotenv==1.0.1
 pytz==2025.1
 PyYAML==6.0.2
 redis==5.2.1
@@ -36,6 +39,7 @@ rpds-py==0.22.3
 sentry-sdk==2.20.0
 service-identity==24.2.0
 setuptools==75.8.0
+sniffio==1.3.1
 sqlparse==0.5.3
 Twisted==24.11.0
 txaio==23.1.1
@@ -44,4 +48,7 @@ upgrade-pip==0.1.4
 uritemplate==4.1.1
 urllib3==2.3.0
 uvicorn==0.34.0
+uvloop==0.21.0
+watchfiles==1.0.4
+websockets==14.2
 zope.interface==7.2
