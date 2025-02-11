@@ -35,6 +35,11 @@ sentry_sdk.init(
     },
 )
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://agriculture-production-e531.up.railway.app", 
+]
+
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Add public/images directory for static files
