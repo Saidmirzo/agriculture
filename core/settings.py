@@ -15,6 +15,26 @@ from pathlib import Path
 
 import os
 
+
+
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://bed97c5c26078a25de25be00f8d34dfe@o4508199077740544.ingest.us.sentry.io/4508799722455040",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for tracing.
+    traces_sample_rate=1.0,
+    _experiments={
+        # Set continuous_profiling_auto_start to True
+        # to automatically start the profiler on when
+        # possible.
+        "continuous_profiling_auto_start": True,
+    },
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Add public/images directory for static files

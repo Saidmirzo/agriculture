@@ -2,6 +2,7 @@ asgiref==3.8.1
 attrs==25.1.0
 autobahn==24.4.2
 Automat==24.8.1
+certifi==2025.1.31
 cffi==1.17.1
 channels==4.2.0
 channels_redis==4.2.1
@@ -32,6 +33,7 @@ PyYAML==6.0.2
 redis==5.2.1
 referencing==0.36.2
 rpds-py==0.22.3
+sentry-sdk==2.20.0
 service-identity==24.2.0
 setuptools==75.8.0
 sqlparse==0.5.3
@@ -40,5 +42,6 @@ txaio==23.1.1
 typing_extensions==4.12.2
 upgrade-pip==0.1.4
 uritemplate==4.1.1
+urllib3==2.3.0
 uvicorn==0.34.0
 zope.interface==7.2
