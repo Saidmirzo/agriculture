@@ -27,6 +27,7 @@ django.setup()
 
 
 application = ProtocolTypeRouter({
+    "https": get_asgi_application(),  # Handles HTTP requests
     "http": get_asgi_application(),  # Handles HTTP requests
     "websocket": URLRouter(websocket_urlpatterns),  # Handles WebSocket connections
 })
