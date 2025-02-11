@@ -177,7 +177,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 from decouple import config
-
+from  channels_redis.core import RedisChannelLayer
 REDIS_URL = config('REDIS_URL')
 CHANNEL_LAYERS = {
     "default": {
