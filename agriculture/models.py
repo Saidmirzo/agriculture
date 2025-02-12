@@ -10,13 +10,12 @@ class Device(models.Model):
     longitude = models.FloatField(null=True, blank=True)
     logs = models.TextField(default="[]")  # Store logs as a JSON list
 
-    async def add_log(self, new_log):
+    def add_log(self, new_log):
         """Add a log entry and keep only the last 10 logs."""
         logs_list = json.loads(self.logs)  # Convert string to list
         logs_list.append(new_log)  # Add new log
         logs_list = logs_list[-10:]  # Keep only the last 10 logs
         self.logs = json.dumps(logs_list)  # Convert list back to string
-        await self.save()
 
     def get_logs(self):
         """Return the last stored logs."""

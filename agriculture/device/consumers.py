@@ -60,4 +60,5 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         from agriculture.models import Device
         """Save device logs asynchronously in Django database"""
         device = await sync_to_async(Device.objects.get)(device_id=self.device_id)
-        await device.add_log(response.get('logs'))
+        device.add_log(response.get('logs'))
+        await self.save_device(device)
