@@ -124,3 +124,21 @@ class SendEventView(CreateAPIView):
         )
 
         return Response({"message": f"Command '{command}' sent to device {device_id}"}, status=status.HTTP_200_OK)
+    
+
+class UploadLogsView(APIView):
+    def post(self, request, *args, **kwargs):
+        device_id = request.data.get("device_id")
+        logs = request.data.get("logs")
+
+        if not device_id or not logs:
+            return Response({"error": "Missing device_id or logs"}, status=status.HTTP_400_BAD_REQUEST)
+
+        device = Device.objects.filter(device_id=device_id).first()
+        if not device:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Add log entry
+        device.add_log(logs)
+
+        return Response({"message": "Logs updated"}, status=status.HTTP_200_OK)
