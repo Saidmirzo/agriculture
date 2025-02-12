@@ -3,7 +3,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils.timezone import now
 from asgiref.sync import sync_to_async
 
-from agriculture.models import Device
 
 class DeviceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -58,6 +57,7 @@ class DeviceConsumer(AsyncWebsocketConsumer):
     async def save_device(self, device):
         await sync_to_async(device.save, thread_sensitive=True)()
     async def save_log(self, response):
+        from agriculture.models import Device
         """Save device logs asynchronously in Django database"""
         device = await sync_to_async(Device.objects.get)(device_id=self.device_id)
         device.add_log(response.get('logs'))
