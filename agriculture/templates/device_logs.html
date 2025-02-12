@@ -29,9 +29,11 @@
                     <div class="accordion-body">
                         <p><strong>Device ID:</strong> {{ device.device_id }}</p>
                         <p><strong>Status:</strong> 
-                            <span class="badge bg-{{ 'success' if device.connection_status else 'danger' }}">
-                                {{ "Online" if device.connection_status else "Offline" }}
-                            </span>
+                            {% if device.connection_status %}
+                                <span class="badge bg-success">Online</span>
+                            {% else %}
+                                <span class="badge bg-danger">Offline</span>
+                            {% endif %}
                         </p>
                         <p><strong>Last Connected:</strong> {{ device.last_connected }}</p>
                         <p><strong>Location:</strong> {{ device.latitude }}, {{ device.longitude }}</p>
