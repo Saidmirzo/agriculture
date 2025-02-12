@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import DeviceDataView, DeviceStatusView, SendEventView, TriggerEventView, UpdateLocationView, UploadImageView, UploadLogsView
+from .views import DeviceDataView, DeviceStatusView, SendEventView, TriggerEventView, UpdateLocationView, UploadImageView, UploadLogsView, device_logs_view
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -13,5 +13,6 @@ urlpatterns = [
     path("send-event/", SendEventView.as_view(), name="send_event"),
     path("send-image/", UploadImageView.as_view(), name="send_image"),
     path("upload-logs/", UploadLogsView.as_view(), name="upload_logs"),
+    path("logs/", device_logs_view, name="device_logs"),
     
 ]

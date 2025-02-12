@@ -142,3 +142,10 @@ class UploadLogsView(APIView):
         device.add_log(logs)
 
         return Response({"message": "Logs updated"}, status=status.HTTP_200_OK)
+    
+
+from django.shortcuts import render
+
+def device_logs_view(request):
+    devices = Device.objects.all()
+    return render(request, "device_logs.html", {"devices": devices})
