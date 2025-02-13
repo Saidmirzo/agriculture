@@ -127,29 +127,37 @@ class SendEventView(CreateAPIView):
     
 
 class UploadLogsView(APIView):
+    """API view for uploading logs from a device."""
+
     def post(self, request, *args, **kwargs):
+        from agriculture.models import Device, DeviceLog
         device_id = request.data.get("device_id")
         logs = request.data.get("logs")
 
         if not device_id or not logs:
             return Response({"error": "Missing device_id or logs"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Fetch device
         device = Device.objects.filter(device_id=device_id).first()
         if not device:
             return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Add log entry
-        device.add_log(logs)
+        # Save logs as separate entries
+        if isinstance(logs, list):  # Ensure logs are sent as a list
+            for log in logs:
+                DeviceLog.objects.create(device=device, log=log)
+        else:
+            DeviceLog.objects.create(device=device, log=str(logs))
 
-        return Response({"message": "Logs updated"}, status=status.HTTP_200_OK)
+        return Response({"message": "Logs updated successfully"}, status=status.HTTP_200_OK)
     
 
 from django.shortcuts import render
 
 def device_logs_view(request):
-    devices = Device.objects.all()
+    """Render the real-time device logs page"""
+    devices = Device.objects.prefetch_related("logs").all()
     return render(request, "device_logs.html", {"devices": devices})
-
 
 def real_device_logs_view(request):
     devices = Device.objects.all()

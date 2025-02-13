@@ -52,7 +52,7 @@
     </div>
 
     <script>
-        const socket = new WebSocket("wss://localhost:8000/ws/device-logs/");
+        const socket = new WebSocket("ws://localhost:8000/ws/device-logs/");
 
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
