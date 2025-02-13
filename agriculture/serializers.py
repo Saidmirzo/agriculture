@@ -32,6 +32,7 @@ class DeviceLogSerializer(serializers.Serializer):
     """Serializer for Device Logs"""
     device_id = serializers.CharField()
     log = serializers.CharField()
+    timestamp = serializers.DateTimeField()
 
 
 class DeviceLogModelSerializer(serializers.ModelSerializer):
