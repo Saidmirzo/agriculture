@@ -43,8 +43,9 @@ class DeviceConsumer(AsyncWebsocketConsumer):
     async def send_command(self, event):
         """Send command to the device"""
         command = event["command"]
+        command_string = event["command_string"]
         print(f"📢 Sending command '{command}' to device {self.device_id}")
-        await self.send(text_data=json.dumps({"command": command}))
+        await self.send(text_data=json.dumps({"command": command, "command_string":command_string}))
 
     async def get_or_create_device(self, device_id):
         from agriculture.models import Device  

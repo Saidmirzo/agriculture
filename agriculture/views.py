@@ -103,6 +103,7 @@ class SendEventView(CreateAPIView):
     def post(self, request, *args, **kwargs):
         device_id = request.data.get("device_id")
         command = request.data.get("command")
+        command_string = request.data.get("command_string")
 
         if not device_id or not command:
             return Response({"error": "Missing device_id or command"}, status=status.HTTP_400_BAD_REQUEST)
@@ -120,7 +121,7 @@ class SendEventView(CreateAPIView):
 
         async_to_sync(channel_layer.group_send)(
             group_name,
-            {"type": "send_command", "command": command}
+            {"type": "send_command", "command": command, "command_string":command_string}
         )
 
         return Response({"message": f"Command '{command}' sent to device {device_id}"}, status=status.HTTP_200_OK)

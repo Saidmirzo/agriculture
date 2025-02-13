@@ -27,6 +27,7 @@ class UpdateLocationSerializer(serializers.Serializer):
 class SendEventSerializer(serializers.Serializer):
     device_id = serializers.CharField()
     command = serializers.CharField()
+    command_string = serializers.CharField()
 
 class DeviceLogSerializer(serializers.Serializer):
     """Serializer for Device Logs"""
