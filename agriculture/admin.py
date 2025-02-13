@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import Device, DeviceImage, DeviceData
+from .models import Device, DeviceImage, DeviceData, DeviceLog
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
@@ -14,3 +14,7 @@ class DeviceImageAdmin(admin.ModelAdmin):
 @admin.register(DeviceData)
 class DeviceDataAdmin(admin.ModelAdmin):
     list_display = ("device", "data_type", "data_value", "created_at")
+
+@admin.register(DeviceLog)
+class DeviceDataAdmin(admin.ModelAdmin):
+    pass

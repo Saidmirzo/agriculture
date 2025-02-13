@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from agriculture.serializers import DeviceCreateSerializer, SendEventSerializer, UploadImageSerializer
+from agriculture.serializers import DeviceCreateSerializer, SendEventSerializer, UploadImageSerializer, DeviceLogSerializer
 
 from .models import Device, DeviceImage, DeviceData
 
@@ -126,18 +126,18 @@ class SendEventView(CreateAPIView):
         return Response({"message": f"Command '{command}' sent to device {device_id}"}, status=status.HTTP_200_OK)
     
 
-class UploadLogsView(APIView):
+class UploadLogsView(CreateAPIView):
     """API view for uploading logs from a device."""
+    serializer_class=DeviceLogSerializer
 
     def post(self, request, *args, **kwargs):
         from agriculture.models import Device, DeviceLog
-        device_id = request.data.get("device_id")
-        logs = request.data.get("logs")
+        serializer=DeviceLogSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        device_id = serializer.validated_data.get('device_id')
+        logs = serializer.validated_data.get('logs')
 
-        if not device_id or not logs:
-            return Response({"error": "Missing device_id or logs"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Fetch device
         device = Device.objects.filter(device_id=device_id).first()
         if not device:
             return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)

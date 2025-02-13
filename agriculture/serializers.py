@@ -2,6 +2,9 @@ from rest_framework.serializers import ModelSerializer
 from agriculture.models import Device
 from rest_framework import serializers
 
+from rest_framework import serializers
+from agriculture.models import DeviceLog
+
 class DeviceCreateSerializer(ModelSerializer):
     class Meta:
         model = Device
@@ -24,3 +27,9 @@ class UpdateLocationSerializer(serializers.Serializer):
 class SendEventSerializer(serializers.Serializer):
     device_id = serializers.CharField()
     command = serializers.CharField()
+
+class DeviceLogSerializer(serializers.Serializer):
+    """Serializer for Device Logs"""
+    device_id = serializers.CharField()
+    logs = serializers.CharField()
+   
