@@ -149,3 +149,9 @@ from django.shortcuts import render
 def device_logs_view(request):
     devices = Device.objects.all()
     return render(request, "device_logs.html", {"devices": devices})
+
+
+def real_device_logs_view(request):
+    devices = Device.objects.all()
+    return render(request, "real_time_device_logs.html", {"devices": devices})
+
