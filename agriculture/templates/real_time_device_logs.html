@@ -21,8 +21,7 @@
             {% for device in devices %}
             <div class="accordion-item" id="device-card-{{ device.device_id }}">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#device{{ device.id }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#device{{ device.device_id }}">
                         <p>{{ device.name }} ({{ device.device_id }}) ->
                             {% if device.connection_status %}
                             <span class="badge bg-success">Online</span>
