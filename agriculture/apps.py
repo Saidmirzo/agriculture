@@ -6,4 +6,5 @@ class AgricultureConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'agriculture'
 
-    
+    def ready(self):
+        import agriculture.signals 

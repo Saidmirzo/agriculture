@@ -38,8 +38,8 @@
                         <hr>
                         <h5>Logs</h5>
                         <div class="log-container border p-2 bg-light" id="logs-{{ device.device_id }}">
-                            {% for log in device.get_logs %}
-                                <p>{{ log }}</p>
+                            {% for log in device.logs.all %}
+                                <p>{{ log.timestamp }} - {{ log.log }}</p>
                             {% empty %}
                                 <p class="text-muted">No logs available.</p>
                             {% endfor %}
@@ -52,45 +52,48 @@
     </div>
 
     <script>
-        const socket = new WebSocket("ws://localhost:8000/ws/device-logs/");
-
+        const socket = new WebSocket("wss://localhost:8000/ws/device-logs/");
+    
         socket.onmessage = function(event) {
             const data = JSON.parse(event.data);
             console.log("🔄 Received update:", data);
-
-            data.devices.forEach(device => {
-                let deviceCard = document.getElementById(`device-card-${device.device_id}`);
-                let logsContainer = document.getElementById(`logs-${device.device_id}`);
-
-                if (deviceCard) {
-                    deviceCard.innerHTML = `
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#device${device.device_id}">
-                                ${device.name} (${device.device_id})
-                            </button>
-                        </h2>
-                        <div id="device${device.device_id}" class="accordion-collapse collapse" data-bs-parent="#deviceAccordion">
-                            <div class="accordion-body">
-                                <p><strong>Device ID:</strong> ${device.device_id}</p>
-                                <p><strong>Status:</strong> 
-                                    <span class="badge ${device.connection_status ? 'bg-success' : 'bg-danger'}">
-                                        ${device.connection_status ? 'Online' : 'Offline'}
-                                    </span>
-                                </p>
-                                <p><strong>Last Connected:</strong> ${device.last_connected}</p>
-                                <p><strong>Location:</strong> ${device.latitude}, ${device.longitude}</p>
-                                <hr>
-                                <h5>Logs</h5>
-                                <div class="log-container border p-2 bg-light">
-                                    ${device.logs.map(log => `<p>${log}</p>`).join("") || "<p class='text-muted'>No logs available.</p>"}
+    
+            if (data.type === "update_devices") {
+                const deviceAccordion = document.getElementById("deviceAccordion");
+                deviceAccordion.innerHTML = "";  // Clear existing devices
+    
+                data.devices.forEach(device => {
+                    let deviceCard = `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#device${device.device_id}">
+                                    ${device.name} (${device.device_id})
+                                </button>
+                            </h2>
+                            <div id="device${device.device_id}" class="accordion-collapse collapse" data-bs-parent="#deviceAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>Device ID:</strong> ${device.device_id}</p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge ${device.connection_status ? 'bg-success' : 'bg-danger'}">
+                                            ${device.connection_status ? 'Online' : 'Offline'}
+                                        </span>
+                                    </p>
+                                    <p><strong>Last Connected:</strong> ${device.last_connected}</p>
+                                    <p><strong>Location:</strong> ${device.latitude}, ${device.longitude}</p>
+                                    <hr>
+                                    <h5>Logs</h5>
+                                    <div class="log-container border p-2 bg-light">
+                                        ${device.logs.map(log => `<p>${log.timestamp} - ${log.log}</p>`).join("") || "<p class='text-muted'>No logs available.</p>"}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     `;
-                }
-            });
+                    deviceAccordion.innerHTML += deviceCard;
+                });
+            }
         };
-
+    
         socket.onerror = function(error) {
             console.error("❌ WebSocket error:", error);
         };

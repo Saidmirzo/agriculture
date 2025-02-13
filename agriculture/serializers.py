@@ -32,4 +32,17 @@ class DeviceLogSerializer(serializers.Serializer):
     """Serializer for Device Logs"""
     device_id = serializers.CharField()
     logs = serializers.CharField()
+
+
+class DeviceLogModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeviceLog
+        fields = ["timestamp", "log"]
+
+class DeviceSerializer(serializers.ModelSerializer):
+    logs = DeviceLogSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Device
+        fields = ["device_id", "name", "connection_status", "last_connected", "latitude", "longitude", "logs"]
    
