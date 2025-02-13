@@ -41,7 +41,8 @@
                         <h5>Logs</h5>
                         <div class="log-container border p-2 bg-light">
                             {% for log in device.logs.all|dictsortreversed:"timestamp" %}
-                                <p>{{ log.timestamp|date:"Y-m-d H:i:s" }} - {{ log.log }}</p>
+                                <!-- <p>{{ log.timestamp|date:"Y-m-d H:i:s" }} - {{ log.log }}</p> -->
+                                <p>{{ log.log }}</p>
                             {% empty %}
                                 <p class="text-muted">No logs available.</p>
                             {% endfor %}

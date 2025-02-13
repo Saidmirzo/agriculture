@@ -31,7 +31,7 @@ class SendEventSerializer(serializers.Serializer):
 class DeviceLogSerializer(serializers.Serializer):
     """Serializer for Device Logs"""
     device_id = serializers.CharField()
-    logs = serializers.CharField()
+    log = serializers.CharField()
 
 
 class DeviceLogModelSerializer(serializers.ModelSerializer):
