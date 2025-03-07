@@ -211,6 +211,25 @@ if os.getenv("RAILWAY_ENV") != "production":
     CSRF_COOKIE_SECURE = False
 
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/django/debug.log",
+            "encoding": "utf-8",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 
 # CREATE DATABASE agriculture_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
