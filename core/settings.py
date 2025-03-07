@@ -51,7 +51,7 @@ STATICFILES_DIRS = [
     '/app/public',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Directory where 'collectstatic' puts files
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # Directory where 'collectstatic' puts files
 
 
 
