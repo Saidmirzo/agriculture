@@ -117,7 +117,7 @@ class SendEventView(CreateAPIView):
         channel_layer = get_channel_layer()
         group_name = f"device_{device_id}"
         
-        print(f"📡 Sending command '{command}' to WebSocket group: {group_name}")
+        print(f"[SEND] Sending command '{command}' to WebSocket group: {group_name}")
 
         async_to_sync(channel_layer.group_send)(
             group_name,
