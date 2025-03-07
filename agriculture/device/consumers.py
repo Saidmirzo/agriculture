@@ -18,14 +18,14 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         await self.save_device(device)
 
         # Add device to its own WebSocket group
-        print(f"✅ Adding device {self.device_id} to group: {self.group_name}")
+        print(f"[INFO] Adding device {self.device_id} to group: {self.group_name}")
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
     async def disconnect(self, close_code):
         device = await self.get_device(self.device_id)
         if device:
             device.connection_status = False
-            print(f"🔴 Device {self.device_id} disconnected")
+            print(f"[WARNING] Device {self.device_id} disconnected")
             await self.save_device(device)
 
         # Remove from the WebSocket group
