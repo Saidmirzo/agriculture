@@ -134,8 +134,13 @@ ASGI_APPLICATION = 'core.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'agriculture_db',
+        'USER': 'agriculture_user',
+        'PASSWORD': 'agriculture_password',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        
     }
 }
 
@@ -204,3 +209,12 @@ if os.getenv("RAILWAY_ENV") != "production":
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+
+
+
+
+# CREATE DATABASE agriculture_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+# CREATE USER 'agriculture_user'@'localhost' IDENTIFIED BY 'agriculture_password';
+# GRANT ALL PRIVILEGES ON agriculture_db.* TO 'agriculture_user'@'localhost';
+# FLUSH PRIVILEGES;
+# EXIT;
