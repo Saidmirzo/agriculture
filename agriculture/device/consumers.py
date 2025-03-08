@@ -37,14 +37,14 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         await self.save_log(data)
 
         # if command == "capture_image":
-        #     print(f"📸 Received capture command from {self.device_id}")
+        #     print(f"[INFO] Received capture command from {self.device_id}")
         #     await self.send(text_data=json.dumps({"action": "capture"}))
 
     async def send_command(self, event):
         """Send command to the device"""
         command = event["command"]
         command_string = event["command_string"]
-        print(f"📢 Sending command '{command}' to device {self.device_id}")
+        print(f"[INFO] Sending command '{command}' to device {self.device_id}")
         await self.send(text_data=json.dumps({"command": command, "command_string":command_string}))
 
     async def get_or_create_device(self, device_id):
