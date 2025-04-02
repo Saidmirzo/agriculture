@@ -6,3 +6,4 @@ core/__pycache__
 agriculture/__pycache__
 static
 *.pyc
+.qodo

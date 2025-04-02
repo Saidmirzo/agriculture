@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import Device, DeviceImage, DeviceData, DeviceLog
+from .models import Device, DeviceImage, DeviceData, DeviceLog, BotUser
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
@@ -18,3 +18,9 @@ class DeviceDataAdmin(admin.ModelAdmin):
 @admin.register(DeviceLog)
 class DeviceDataAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(BotUser)
+class BotUserAdmin(admin.ModelAdmin):
+    list_display = ('user_id', 'name', 'created_at')
+    search_fields = ('user_id', 'name')

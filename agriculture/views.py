@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from agriculture.bot_service.bot_service import send_image_to_all, send_location_to_users
 from agriculture.serializers import DeviceCreateSerializer, SendEventSerializer, UploadImageSerializer, DeviceLogSerializer
 
 from .models import Device, DeviceImage, DeviceData
@@ -70,6 +71,7 @@ class UploadImageView(APIView):
 
         # Save only the image path in the database
         device_image = DeviceImage.objects.create(device=device, image_path=relative_image_path)
+        send_image_to_all(image_path)
 
         return Response({"message": "Image uploaded successfully", "image_path": relative_image_path}, status=200)
 
@@ -92,6 +94,7 @@ class UpdateLocationView(APIView):
         device.latitude = latitude
         device.longitude = longitude
         device.save()
+        send_location_to_users(latitude, longitude)
 
         return Response({"message": "Location updated successfully"}, status=status.HTTP_200_OK)
 
@@ -170,3 +173,53 @@ def real_device_logs_view(request):
     devices = Device.objects.all()
     return render(request, "real_time_device_logs.html", {"devices": devices})
 
+
+from django.views import View
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.permissions import AllowAny
+from .models import BotUser
+import json
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class BotUserView(View):
+    """
+    POST — добавление пользователя
+    DELETE — удаление пользователя
+    """
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        user_id = data.get("user_id")
+        name = data.get("name")
+
+        if not user_id or not name:
+            return JsonResponse({"error": "user_id and name required"}, status=400)
+
+        user, created = BotUser.objects.get_or_create(user_id=user_id, defaults={"name": name})
+        if not created:
+            return JsonResponse({"message": "User already exists"}, status=200)
+
+        return JsonResponse({"message": "User added"}, status=201)
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        user_id = data.get("user_id")
+        if not user_id:
+            return JsonResponse({"error": "user_id required"}, status=400)
+
+        deleted, _ = BotUser.objects.filter(user_id=user_id).delete()
+        if deleted:
+            return JsonResponse({"message": "User removed"}, status=200)
+        else:
+            return JsonResponse({"message": "User not found"}, status=404)

@@ -35,3 +35,13 @@ class DeviceImage(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name="images")
     image_path = models.CharField(max_length=500)  # Store only the path
     timestamp = models.DateTimeField(auto_now_add=True)
+
+
+
+class BotUser(models.Model):
+    user_id = models.BigIntegerField(unique=True)
+    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.user_id})"
