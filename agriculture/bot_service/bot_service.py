@@ -3,7 +3,7 @@ from agriculture.models import BotUser
 from requests import post
 
 
-token = "YOUR_BOT_TOKEN"
+token = "7519067417:AAFjR06IiAzlhkuAkFti3YFMCVoq3pV_xFM"
 def send_image_to_all(image_path):
 
     url = f"https://api.telegram.org/bot{token}/sendPhoto"
