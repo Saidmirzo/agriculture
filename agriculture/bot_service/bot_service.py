@@ -16,7 +16,7 @@ def send_image_to_all(image_path):
                 'caption': f"📸 Привет, {user.name}!"
             }
             resp = post(url, data=data, files=files)
-            print(f"Sent to {user.name}, status: {resp.status_code}")
+            print(f"Sent to {user.name}, status: {resp.status_code}, text: {resp.text}")
             image.seek(0)  # Обязательно, иначе второй раз файл будет пустой
 
 
