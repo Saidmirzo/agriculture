@@ -28,7 +28,7 @@ def send_image_to_all(image_path):
                 image.seek(0)
 
             except Exception as e:
-                print(f"[ERROR] Ошибка при отправке для {user.name}: {repr(e)}")
+                print(f"[ERROR] Ошибка при отправке {repr(e)}")
 
 # def send_image_to_all(image_path):
 #     url_photo = f"https://api.telegram.org/bot{token}/sendPhoto"
