@@ -5,30 +5,57 @@ from requests import post
 
 token = "7519067417:AAFjR06IiAzlhkuAkFti3YFMCVoq3pV_xFM"
 
+
 def send_image_to_all(image_path):
     url_photo = f"https://api.telegram.org/bot{token}/sendPhoto"
     url_file = f"https://api.telegram.org/bot{token}/sendDocument"
 
     with open(image_path, "rb") as image:
         for user in BotUser.objects.all():
-            files = {'photo': image}
-            data = {
-                'chat_id': user.user_id,
-                'caption': f" Привет, {user.name}!"
-            }
-            resp = post(url_photo, data=data, files=files)
+            try:
+                caption = f"📸 Привет, {user.name}!".encode('utf-8').decode('utf-8')
+                files = {'photo': image}
+                data = {'chat_id': user.user_id, 'caption': caption}
+                resp = post(url_photo, data=data, files=files)
 
-            if resp.status_code != 200:
-                print(f"[WARNING] Photo failed for {user.name}, trying as document...")
-                files = {'document': image}
-                data = {
-                    'chat_id': user.user_id,
-                    'caption': f"📎 Привет, {user.name} (файл вместо фото)!"
-                }
-                response = post(url_file, data=data, files=files)
+                if resp.status_code != 200:
+                    image.seek(0)
+                    files = {'document': image}
+                    data = {'chat_id': user.user_id, 'caption': f"📎 Привет, {user.name} (файл вместо фото)!"}
+                    resp = post(url_file, data=data, files=files)
 
-            print(f"Sent to {user.name}, status: {resp.status_code}, text: {resp.text}")
-            image.seek(0)  # Обязательно, иначе второй раз файл будет пустой
+                print(f"Sent to {user.name}, status: {resp.status_code}, text: {resp.text}")
+                image.seek(0)
+
+            except Exception as e:
+                print(f"[ERROR] Ошибка при отправке для {user.name}: {repr(e)}")
+
+# def send_image_to_all(image_path):
+#     url_photo = f"https://api.telegram.org/bot{token}/sendPhoto"
+#     url_file = f"https://api.telegram.org/bot{token}/sendDocument"
+
+#     with open(image_path, "rb") as image:
+#         for user in BotUser.objects.all():
+#             files = {'photo': image}
+#             data = {
+#                 'chat_id': user.user_id,
+#                 'caption': f" Привет, {user.name}!"
+#             }
+#             resp = post(url_photo, data=data, files=files)
+
+#             if resp.status_code != 200:
+#                 print(f"[WARNING] Photo failed for {user.name}, trying as document...")
+#                 files = {'document': image}
+#                 data = {
+#                     'chat_id': user.user_id,
+#                     'caption': f"📎 Привет, {user.name} (файл вместо фото)!"
+#                 }
+#                 response = post(url_file, data=data, files=files)
+
+#             print(f"Sent to {user.name}, status: {resp.status_code}, text: {resp.text}")
+#             image.seek(0)  # Обязательно, иначе второй раз файл будет пустой
+
+
 
     # for user in BotUser.objects.all():
     #     with open(image_path, "rb") as image:
