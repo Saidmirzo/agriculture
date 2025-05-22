@@ -14,18 +14,18 @@ def send_image_to_all(image_path):
             files = {'photo': image}
             data = {
                 'chat_id': user.user_id,
-                'caption': f"📸 Привет, {user.name}!"
+                'caption': f" Привет, {user.name}!"
             }
             resp = post(url_photo, data=data, files=files)
 
-            # if resp.status_code != 200:
-            #     print(f"[WARNING] Photo failed for {user.name}, trying as document...")
-            #     files = {'document': image_file}
-            #     data = {
-            #         'chat_id': user.user_id,
-            #         'caption': f"📎 Привет, {user.name} (файл вместо фото)!"
-            #     }
-            #     response = post(url_file, data=data, files=files)
+            if resp.status_code != 200:
+                print(f"[WARNING] Photo failed for {user.name}, trying as document...")
+                files = {'document': image}
+                data = {
+                    'chat_id': user.user_id,
+                    'caption': f"📎 Привет, {user.name} (файл вместо фото)!"
+                }
+                response = post(url_file, data=data, files=files)
 
             print(f"Sent to {user.name}, status: {resp.status_code}, text: {resp.text}")
             image.seek(0)  # Обязательно, иначе второй раз файл будет пустой
