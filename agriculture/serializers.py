@@ -49,6 +49,8 @@ class DeviceSerializer(serializers.ModelSerializer):
         fields = ["device_id", "name", "connection_status", "last_connected", "latitude", "longitude", "logs"]
    
 
+from django.conf import settings
+from urllib.parse import urljoin
 class DeviceImageSerializer(serializers.ModelSerializer):
     full_image_url = serializers.SerializerMethodField()
 
@@ -59,8 +61,9 @@ class DeviceImageSerializer(serializers.ModelSerializer):
     def get_full_image_url(self, obj):
         request = self.context.get('request')
         if request is not None:
-            return request.build_absolute_uri(obj.image_path)
-        return obj.image_path
+            media_url = request.build_absolute_uri(settings.MEDIA_URL)
+            return urljoin(media_url, obj.image_path)
+        return settings.MEDIA_URL + obj.image_path
 
 class DeviceImagesSerializer(serializers.ModelSerializer):
     data = DeviceDataSerializer(many=True, read_only=True)
