@@ -224,13 +224,20 @@ class BotUserView(View):
         else:
             return JsonResponse({"message": "User not found"}, status=404)
         
+
+# Query param description
+device_id_param = openapi.Parameter(
+    'device_id',  # nomi URL query param'da qanday bo'lishini bildiradi
+    openapi.IN_QUERY,  # bu query param ekanligini bildiradi
+    description="Qurilmaning noyob ID'si (device_id)",
+    type=openapi.TYPE_STRING,
+    required=True
+)
     
 class DeviceImagesView(APIView):
     @swagger_auto_schema(
-        operation_description="Device ID asosida qurilma bilan bog‘liq data va images (to‘liq path bilan) olish",
-        manual_parameters=[
-            openapi.Parameter('device_id', openapi.IN_QUERY, description="Device ID", type=openapi.TYPE_STRING)
-        ],
+        operation_description="Device ID asosida qurilmaga oid data va rasmlarni (to‘liq URL bilan) olish",
+        manual_parameters=[device_id_param],
         responses={200: DeviceImagesSerializer()}
     )
     def get(self, request):
