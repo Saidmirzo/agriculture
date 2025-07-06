@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer
-from agriculture.models import Device
+from agriculture.models import Device, DeviceImage
 from rest_framework import serializers
 
 from rest_framework import serializers
@@ -48,3 +48,33 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = ["device_id", "name", "connection_status", "last_connected", "latitude", "longitude", "logs"]
    
+
+class DeviceImageSerializer(serializers.ModelSerializer):
+    full_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DeviceImage
+        fields = '__all__'
+
+    def get_full_image_url(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return request.build_absolute_uri(obj.image_path)
+        return obj.image_path
+
+class DeviceImagesSerializer(serializers.ModelSerializer):
+    data = DeviceDataSerializer(many=True, read_only=True)
+    images = DeviceImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Device
+        fields = [
+            'device_id',
+            'name',
+            'connection_status',
+            'last_connected',
+            'latitude',
+            'longitude',
+            'data',
+            'images',
+        ]

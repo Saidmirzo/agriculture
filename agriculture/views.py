@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from agriculture.bot_service.bot_service import send_image_to_all, send_location_to_users
-from agriculture.serializers import DeviceCreateSerializer, SendEventSerializer, UploadImageSerializer, DeviceLogSerializer
+from agriculture.serializers import DeviceCreateSerializer, DeviceImagesSerializer, SendEventSerializer, UploadImageSerializer, DeviceLogSerializer
 
 from .models import Device, DeviceImage, DeviceData
 
@@ -223,3 +223,25 @@ class BotUserView(View):
             return JsonResponse({"message": "User removed"}, status=200)
         else:
             return JsonResponse({"message": "User not found"}, status=404)
+        
+    
+class DeviceImagesView(APIView):
+    @swagger_auto_schema(
+        operation_description="Device ID asosida qurilma bilan bog‘liq data va images (to‘liq path bilan) olish",
+        manual_parameters=[
+            openapi.Parameter('device_id', openapi.IN_QUERY, description="Device ID", type=openapi.TYPE_STRING)
+        ],
+        responses={200: DeviceImagesSerializer()}
+    )
+    def get(self, request):
+        device_id = request.query_params.get('device_id')
+        if not device_id:
+            return Response({"detail": "device_id query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            device = Device.objects.get(device_id=device_id)
+        except Device.DoesNotExist:
+            return Response({"detail": "Device not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = DeviceImagesSerializer(device, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
