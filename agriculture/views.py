@@ -229,10 +229,11 @@ class BotUserView(View):
     
 class DeviceImagesView(APIView):
 
+    @swagger_auto_schema(
+        operation_description="Device ID (path param) asosida qurilmaga oid data va rasmlarni olish",
+        responses={200: DeviceImagesSerializer()}
+    )
     def get(self, request, device_id):
-        if not device_id:
-            return Response({"detail": "device_id query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             device = Device.objects.get(device_id=device_id)
         except Device.DoesNotExist:

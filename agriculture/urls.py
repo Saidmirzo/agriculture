@@ -16,6 +16,6 @@ urlpatterns = [
     path("logs/", device_logs_view, name="device_logs"),
     path("real-logs/", real_device_logs_view, name="real_device_logs"),
     path("bot-user/",  BotUserView.as_view(), name="bot-user"),
-    path('api/device-images/', DeviceImagesView.as_view(), name='device-images'),
+    path('api/device-images/<str:device_id>/', DeviceImagesView.as_view(), name='device-images'),
     
 ]
