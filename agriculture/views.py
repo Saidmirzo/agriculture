@@ -226,22 +226,10 @@ class BotUserView(View):
         
 
 # Query param description
-device_id_param = openapi.Parameter(
-    'device_id',  # nomi URL query param'da qanday bo'lishini bildiradi
-    openapi.IN_QUERY,  # bu query param ekanligini bildiradi
-    description="Qurilmaning noyob ID'si (device_id)",
-    type=openapi.TYPE_STRING,
-    required=True
-)
     
 class DeviceImagesView(APIView):
-    @swagger_auto_schema(
-        operation_description="Device ID asosida qurilmaga oid data va rasmlarni (to‘liq URL bilan) olish",
-        manual_parameters=[device_id_param],
-        responses={200: DeviceImagesSerializer()}
-    )
-    def get(self, request):
-        device_id = request.query_params.get('device_id')
+
+    def get(self, request, device_id):
         if not device_id:
             return Response({"detail": "device_id query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
 
