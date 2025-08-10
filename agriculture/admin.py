@@ -17,7 +17,7 @@ class DeviceDataAdmin(admin.ModelAdmin):
 
 @admin.register(DeviceLog)
 class DeviceDataAdmin(admin.ModelAdmin):
-    list_display = ("log_id", "device", "timestamp")
+    list_display = ("device", "timestamp")
     search_fields = ("device__device_id", "log")
 
 
