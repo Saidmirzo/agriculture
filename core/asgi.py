@@ -17,12 +17,12 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/asgi/
 
 
 import os
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 import django
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from agriculture.device.routing import websocket_urlpatterns  # Import WebSocket routes
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()  
 
 
