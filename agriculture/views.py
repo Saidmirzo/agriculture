@@ -17,6 +17,8 @@ from drf_yasg import openapi
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from django.db import transaction
+
 
 class DeviceStatusView(APIView):
     def get(self, request):
@@ -100,7 +102,6 @@ class UpdateLocationView(APIView):
 
 
 
-
 class SendEventView(CreateAPIView):
     serializer_class=SendEventSerializer
     def post(self, request, *args, **kwargs):
@@ -129,32 +130,60 @@ class SendEventView(CreateAPIView):
 
         return Response({"message": f"Command '{command}' sent to device {device_id}"}, status=status.HTTP_200_OK)
     
+from agriculture.models import Device, DeviceLog
 
 class UploadLogsView(CreateAPIView):
-    """API view for uploading logs from a device."""
-    serializer_class=DeviceLogSerializer
+    """API view for uploading logs from a device (keep last 10 logs per device)."""
+    serializer_class = DeviceLogSerializer
+    PRUNE_LIMIT = 10
 
     def post(self, request, *args, **kwargs):
-        from agriculture.models import Device, DeviceLog
-        serializer=DeviceLogSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
         device_id = serializer.validated_data.get('device_id')
         logs = serializer.validated_data.get('logs')
 
-
         device = Device.objects.filter(device_id=device_id).first()
         if not device:
-            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Device not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        # Save logs as separate entries
-        if isinstance(logs, list):  # Ensure logs are sent as a list
-            for log in logs:
-                DeviceLog.objects.create(device=device, log=log)
-        else:
-            DeviceLog.objects.create(device=device, log=str(logs))
+        # Normalize to list
+        logs_list = logs if isinstance(logs, list) else [str(logs)]
 
-        return Response({"message": "Logs updated successfully"}, status=status.HTTP_200_OK)
-    
+        created_count = 0
+        with transaction.atomic():
+            # 1) Bulk insert new logs
+            to_create = [DeviceLog(device=device, log=str(item)) for item in logs_list]
+            if to_create:
+                DeviceLog.objects.bulk_create(to_create, batch_size=1000)
+                created_count = len(to_create)
+
+            # 2) Keep only last N logs for this device, delete the rest
+            # If your DeviceLog has created_at: use '-created_at', fallback to '-id' if needed.
+            # Change to .order_by('-id') if you don't have created_at.
+            keep_ids = list(
+                DeviceLog.objects
+                .filter(device=device)
+                .order_by('-created_at', '-id')  # <- replace with ('-id',) if no created_at
+                .values_list('id', flat=True)[: self.PRUNE_LIMIT]
+            )
+
+            # Delete everything except the newest PRUNE_LIMIT
+            if keep_ids:
+                DeviceLog.objects.filter(device=device).exclude(id__in=keep_ids).delete()
+
+        return Response(
+            {
+                "message": "Logs updated successfully",
+                "created": created_count,
+                "kept_last": self.PRUNE_LIMIT
+            },
+            status=status.HTTP_200_OK
+        )    
 
 from django.shortcuts import render
 
