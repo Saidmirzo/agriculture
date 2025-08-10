@@ -16,7 +16,7 @@ def add_log_to_device(device_id, log_message):
     device = Device.objects.get(device_id=device_id)
     logs_list = json.loads(device.logs) if device.logs else []
     logs_list.append(log_message)
-    logs_list = logs_list[-50:]  # Keep only the last 50 logs
+    logs_list = logs_list[-2:]  # Keep only the last 2 logs
     device.logs = json.dumps(logs_list)
     device.save()
     

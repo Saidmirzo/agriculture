@@ -3,6 +3,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils.timezone import now
 from asgiref.sync import sync_to_async
 
+from agriculture.models import Device, DeviceLog
+
 
 class DeviceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -59,15 +61,40 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         await sync_to_async(device.save, thread_sensitive=True)()
 
     async def save_log(self, response):
-        from agriculture.models import Device, DeviceLog
-        """Save device logs asynchronously in Django database"""
+        # 1) Device’ni topish
         device = await sync_to_async(Device.objects.get)(device_id=self.device_id)
 
-        if isinstance(response.get("logs"), list):
-            logs = response.get("logs")
-        else:
-            logs = [response.get("logs")]
+        # 2) Loglarni listga normallashtirish
+        data = response.get("logs")
+        logs = data if isinstance(data, list) else [data]
+        logs = [l for l in logs if l is not None]  # None bo‘lsa tashlab yuboramiz
+        if not logs:
+            return
 
-        for log in logs:
-            await sync_to_async(DeviceLog.objects.create)(device=device, log=log)
+        # 3) Yangi loglarni qo‘shish (bulk_create)
+        await sync_to_async(DeviceLog.objects.bulk_create)(
+            [DeviceLog(device=device, log=log) for log in logs]
+        )
+
+        # 4) Prune (faqat oxirgi N ta logni qoldirish)
+        limit = 2
+        await sync_to_async(prune_device_logs)(device, limit)
+
+from django.db import transaction
+
+def prune_device_logs(device, limit: int):
+    """
+    Faqat eng so‘nggi `limit` ta logni qoldiradi, qolganlarini o‘chiradi.
+    """
+    with transaction.atomic():
+        keep_ids = list(
+            DeviceLog.objects
+            .filter(device=device)
+            .order_by('-timestamp')
+            .values_list('id', flat=True)[:limit]
+        )
+        if keep_ids:
+            DeviceLog.objects.filter(device=device).exclude(id__in=keep_ids).delete()
+
+    
 
