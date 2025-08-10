@@ -3,7 +3,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.utils.timezone import now
 from asgiref.sync import sync_to_async
 
-from agriculture.models import Device, DeviceLog
 
 
 class DeviceConsumer(AsyncWebsocketConsumer):
@@ -61,6 +60,8 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         await sync_to_async(device.save, thread_sensitive=True)()
 
     async def save_log(self, response):
+        from agriculture.models import Device, DeviceLog
+
         # 1) Device’ni topish
         device = await sync_to_async(Device.objects.get)(device_id=self.device_id)
 
@@ -83,6 +84,7 @@ class DeviceConsumer(AsyncWebsocketConsumer):
 from django.db import transaction
 
 def prune_device_logs(device, limit: int):
+    from agriculture.models import Device, DeviceLog
     """
     Faqat eng so‘nggi `limit` ta logni qoldiradi, qolganlarini o‘chiradi.
     """
