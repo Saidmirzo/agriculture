@@ -135,7 +135,7 @@ from agriculture.models import Device, DeviceLog
 class UploadLogsView(CreateAPIView):
     """API view for uploading logs from a device (keep last 10 logs per device)."""
     serializer_class = DeviceLogSerializer
-    PRUNE_LIMIT = 10
+    PRUNE_LIMIT = 2
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
