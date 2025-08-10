@@ -17,7 +17,9 @@ class DeviceDataAdmin(admin.ModelAdmin):
 
 @admin.register(DeviceLog)
 class DeviceDataAdmin(admin.ModelAdmin):
-    pass
+    list_display = ("log_id", "device", "timestamp")
+    search_fields = ("device__device_id", "log")
+
 
 
 @admin.register(BotUser)
