@@ -133,12 +133,14 @@ class SendEventView(CreateAPIView):
 from agriculture.models import Device, DeviceLog
 
 class UploadLogsView(CreateAPIView):
-    """API view for uploading logs from a device (keep last 10 logs per device)."""
+    """API view for uploading logs from a device.
+       Faqat oxirgi 2 ta log qoldiriladi, qolganlari o‘chiriladi.
+    """
     serializer_class = DeviceLogSerializer
-    PRUNE_LIMIT = 2
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         device_id = serializer.validated_data.get('device_id')
@@ -146,44 +148,38 @@ class UploadLogsView(CreateAPIView):
 
         device = Device.objects.filter(device_id=device_id).first()
         if not device:
-            return Response(
-                {"error": "Device not found"},
-                status=status.HTTP_404_NOT_FOUND
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Logs’ni listga aylantiramiz
+        if not isinstance(logs, list):
+            logs = [str(logs)] if logs is not None else []
+
+        # Yangi loglarni qo‘shish
+        if logs:
+            DeviceLog.objects.bulk_create(
+                [DeviceLog(device=device, log=log) for log in logs]
             )
 
-        # Normalize to list
-        logs_list = logs if isinstance(logs, list) else [str(logs)]
+        # Oxirgi 2 ta logni qoldirish
+        keep_ids = list(
+            DeviceLog.objects.filter(device=device)
+            .order_by('-timestamp')  # eng so‘nggi yozuvlar
+            .values_list('id', flat=True)[:2]
+        )
 
-        created_count = 0
-        with transaction.atomic():
-            # 1) Bulk insert new logs
-            to_create = [DeviceLog(device=device, log=str(item)) for item in logs_list]
-            if to_create:
-                DeviceLog.objects.bulk_create(to_create, batch_size=1000)
-                created_count = len(to_create)
-
-            # 2) Keep only last N logs for this device, delete the rest
-            # If your DeviceLog has created_at: use '-created_at', fallback to '-id' if needed.
-            # Change to .order_by('-id') if you don't have created_at.
-            keep_ids = list(
-                DeviceLog.objects
-                .filter(device=device)
-                .order_by('-created_at', '-id')  # <- replace with ('-id',) if no created_at
-                .values_list('id', flat=True)[: self.PRUNE_LIMIT]
-            )
-
-            # Delete everything except the newest PRUNE_LIMIT
-            if keep_ids:
-                DeviceLog.objects.filter(device=device).exclude(id__in=keep_ids).delete()
+        pruned = 0
+        if keep_ids:
+            pruned = DeviceLog.objects.filter(device=device).exclude(id__in=keep_ids).delete()[0]
 
         return Response(
             {
                 "message": "Logs updated successfully",
-                "created": created_count,
-                "kept_last": self.PRUNE_LIMIT
+                "added": len(logs),
+                "kept": len(keep_ids),
+                "pruned": pruned
             },
             status=status.HTTP_200_OK
-        )    
+        )  
 
 from django.shortcuts import render
 

@@ -13,6 +13,7 @@ class Device(models.Model):
         return f"{self.device_id} - {'Online' if self.connection_status else 'Offline'}"
 
 class DeviceLog(models.Model):
+    
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name="logs")
     timestamp = models.DateTimeField(auto_now_add=True)
     log = models.TextField(blank=True, null=True)
