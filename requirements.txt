@@ -39,7 +39,6 @@ PyYAML
 redis
 referencing
 requests
-rpds-py
 sentry-sdk
 service-identity
 setuptools
@@ -57,4 +56,6 @@ watchfiles
 websockets
 zope.interface
 jsonschema-specifications
+rpds-py
+
 
