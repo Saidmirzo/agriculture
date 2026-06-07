@@ -24,7 +24,6 @@ idna
 incremental
 inflection
 jsonschema
-jsonschema-specifications
 msgpack
 mysqlclient
 packaging
@@ -57,3 +56,5 @@ uvloop
 watchfiles
 websockets
 zope.interface
+jsonschema-specifications
+
