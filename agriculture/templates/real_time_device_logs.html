@@ -63,7 +63,8 @@
     </div>
 
     <script>
-        const socket = new WebSocket("wss://agriculture-production-e531.up.railway.app/ws/device-logs/");
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/device-logs/`);
 
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data);

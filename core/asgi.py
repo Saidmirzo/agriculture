@@ -22,6 +22,12 @@ import django
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from agriculture.device.routing import websocket_urlpatterns  # Import WebSocket routes
+import sys
+try:
+    import pysqlite3
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+except ImportError:
+    pass
 
 django.setup()  
 
