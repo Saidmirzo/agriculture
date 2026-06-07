@@ -52,10 +52,10 @@ uritemplate
 urllib3
 uvicorn
 uvloop
-watchfiles
 websockets
 zope.interface
 jsonschema-specifications
 rpds-py
+watchfiles
 
 
