@@ -53,6 +53,7 @@ channel_layer = get_channel_layer()
 
 USERS_FILE = Path(__file__).resolve().parent / "users.json"
 active_intervals: dict[str, asyncio.Task] = {}
+pending_interval_device: dict[int, str] = {}
 
 
 def load_allowed_users() -> list[int]:
@@ -100,6 +101,9 @@ def build_device_control_keyboard(device_id: str) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="⏱️ 60s interval", callback_data=f"interval:{device_id}:60"),
             InlineKeyboardButton(text="⛔ Intervalni to‘xtatish", callback_data=f"stop_interval:{device_id}"),
+        ],
+        [
+            InlineKeyboardButton(text="⏱️ Intervalni minutda kiriting", callback_data=f"manual_interval:{device_id}"),
         ],
         [
             InlineKeyboardButton(text="🔁 Qurilmalarni qayta ko‘rsatish", callback_data="refresh_devices"),
@@ -184,6 +188,7 @@ async def cmd_help(message: types.Message) -> None:
     await message.answer(
         "📌 /start — boshlash\n"
         "/devices — qurilmalar ro‘yxatini ko‘rsatish\n"
+        "Qurilma menyusida intervalni minutlarda qo‘lda kiritish mumkin.\n"
         "Bot `client_bot/users.json` faylidagi IDlar bilan ishlaydi."
     )
 
@@ -241,6 +246,15 @@ async def callback_handler(callback_query: types.CallbackQuery) -> None:
         await callback_query.message.answer(f"⏱️ {device_id} uchun {interval_seconds}s intervaldagi suratga olish boshlandi.")
         return
 
+    if data.startswith("manual_interval:"):
+        device_id = data.split(":", 1)[1]
+        pending_interval_device[chat_id] = device_id
+        await callback_query.message.answer(
+            f"⌛ <b>{device_id}</b> uchun intervalni minutlarda kiriting.\n"
+            "Masalan: 1 yoki 5"
+        )
+        return
+
     if data.startswith("stop_interval:"):
         device_id = data.split(":", 1)[1]
         if await stop_interval(device_id):
@@ -254,6 +268,31 @@ async def callback_handler(callback_query: types.CallbackQuery) -> None:
 
 @dp.message()
 async def catch_all(message: types.Message) -> None:
+    chat_id = message.chat.id
+    if chat_id in pending_interval_device and message.text:
+        device_id = pending_interval_device[chat_id]
+        try:
+            minutes = int(message.text.strip())
+            if minutes <= 0:
+                raise ValueError()
+        except ValueError:
+            await message.answer(
+                "❌ Iltimos, musbat butun son sifatida intervalni minutlarda yozing (masalan: 1 yoki 5)."
+            )
+            return
+
+        pending_interval_device.pop(chat_id, None)
+        if device_id in active_intervals:
+            await stop_interval(device_id)
+
+        interval_seconds = minutes * 60
+        task = asyncio.create_task(interval_capture_loop(device_id, interval_seconds, chat_id))
+        active_intervals[device_id] = task
+        await message.answer(
+            f"⏱️ {device_id} uchun {minutes} daqiqalik intervaldagi suratga olish boshlandi."
+        )
+        return
+
     await message.answer(
         "⚠️ Iltimos /start tugmasini bosing yoki /devices bilan qurilmalarni ko‘ring."
     )
