@@ -35,6 +35,7 @@ from aiogram import Bot, Dispatcher, types
 # ---------------------------------------------------------
 
 from aiogram import Bot, Dispatcher, types
+from aiogram.client.default import DefaultBotProperties 
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from asgiref.sync import sync_to_async
@@ -46,7 +47,7 @@ from agriculture.models import BotUser, Device
 token = "7519067417:AAFjR06IiAzlhkuAkFti3YFMCVoq3pV_xFM"
 
 # Aiogram 3.x da HTML parse_mode mana shunday yoziladi
-bot = Bot(token=token, default={"parse_mode": "HTML"})
+bot = Bot(token=token, default=DefaultBotProperties(parse_mode="HTML"))
 dp = Dispatcher()
 channel_layer = get_channel_layer()
 
