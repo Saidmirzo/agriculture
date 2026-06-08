@@ -39,6 +39,7 @@ PyYAML
 redis
 referencing
 requests
+aiogram
 sentry-sdk
 service-identity
 setuptools
