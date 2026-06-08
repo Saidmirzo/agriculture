@@ -23,14 +23,18 @@ class DeviceConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.group_name, self.channel_name)
 
     async def disconnect(self, close_code):
-        device = await self.get_device(self.device_id)
-        if device:
-            device.connection_status = False
-            print(f"[WARNING] Device {self.device_id} disconnected")
-            await self.save_device(device)
-
-        # Remove from the WebSocket group
-        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+        try:
+            device = await self.get_device(self.device_id)
+            if device:
+                device.connection_status = False
+                print(f"[WARNING] Device {self.device_id} disconnected")
+                await self.save_device(device)
+            else:
+                print(f"[WARNING] Device {self.device_id} disconnect called but device record not found")
+        except Exception as exc:
+            print(f"[ERROR] Failed to update device {self.device_id} status on disconnect: {exc}")
+        finally:
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
     async def receive(self, text_data):
         """Handle messages from the device"""

@@ -74,13 +74,13 @@ def build_device_keyboard(devices: list[Device]) -> InlineKeyboardMarkup:
     keyboard = []
     for device in devices:
         title = f"{device.name} ({device.device_id})" if device.name else device.device_id
-        status = "online" if device.connection_status else "offline"
+        status = "(🟢 online)" if device.connection_status else "(🔴 offline)"
         keyboard.append([
             InlineKeyboardButton(text=f"{title} — {status}", callback_data=f"select_device:{device.device_id}")
         ])
-    keyboard.append([
-        InlineKeyboardButton(text="🔄 Yangilash", callback_data="refresh_devices")
-    ])
+    # keyboard.append([
+    #     InlineKeyboardButton(text="🔄 Yangilash", callback_data="refresh_devices")
+    # ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
