@@ -42,6 +42,7 @@ from asgiref.sync import sync_to_async
 from channels.layers import get_channel_layer
 from django.utils import timezone
 
+from agriculture.bot_service.bot_service import ADMIN_CHAT_ID
 from agriculture.models import BotUser, Device
 
 token = "7519067417:AAFjR06IiAzlhkuAkFti3YFMCVoq3pV_xFM"
@@ -77,7 +78,7 @@ def build_device_keyboard(devices: list[Device]) -> InlineKeyboardMarkup:
         title = f"{device.name} ({device.device_id})" if device.name else device.device_id
         status = "(🟢 online)" if device.connection_status else "(🔴 offline)"
         keyboard.append([
-            InlineKeyboardButton(text=f"{title} — {status}", callback_data=f"select_device:{device.device_id}")
+            InlineKeyboardButton(text=f"{status} - {title}", callback_data=f"select_device:{device.device_id}")
         ])
     # keyboard.append([
     #     InlineKeyboardButton(text="🔄 Yangilash", callback_data="refresh_devices")
@@ -85,21 +86,24 @@ def build_device_keyboard(devices: list[Device]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
-def build_device_control_keyboard(device_id: str) -> InlineKeyboardMarkup:
+def build_device_control_keyboard(device_id: str, is_admin: bool) -> InlineKeyboardMarkup:
     keyboard = [
         [
             InlineKeyboardButton(text="📸 Suratga olish", callback_data=f"command:{device_id}:capture"),
             InlineKeyboardButton(text="📍 Joylashuv", callback_data=f"command:{device_id}:location"),
         ],
-        [
+    ]
+    if is_admin:
+        keyboard.append([
             InlineKeyboardButton(text="⚙️ Yangilash", callback_data=f"command:{device_id}:update"),
-        ],
+        ])
+    # [
+    #     InlineKeyboardButton(text="⏱️ 10s interval", callback_data=f"interval:{device_id}:10"),
+    #     InlineKeyboardButton(text="⏱️ 30s interval", callback_data=f"interval:{device_id}:30"),
+    # ],
+    keyboard.extend([
         [
-            InlineKeyboardButton(text="⏱️ 10s interval", callback_data=f"interval:{device_id}:10"),
-            InlineKeyboardButton(text="⏱️ 30s interval", callback_data=f"interval:{device_id}:30"),
-        ],
-        [
-            InlineKeyboardButton(text="⏱️ 60s interval", callback_data=f"interval:{device_id}:60"),
+            # InlineKeyboardButton(text="⏱️ 60s interval", callback_data=f"interval:{device_id}:60"),
             InlineKeyboardButton(text="⛔ Intervalni to‘xtatish", callback_data=f"stop_interval:{device_id}"),
         ],
         [
@@ -108,12 +112,16 @@ def build_device_control_keyboard(device_id: str) -> InlineKeyboardMarkup:
         [
             InlineKeyboardButton(text="🔁 Qurilmalarni qayta ko‘rsatish", callback_data="refresh_devices"),
         ],
-    ]
+    ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
 def is_authorized(chat_id: int) -> bool:
     return chat_id in load_allowed_users()
+
+
+def is_admin_user(chat_id: int) -> bool:
+    return str(chat_id) == str(ADMIN_CHAT_ID)
 
 
 async def authorize_user(chat_id: int, user_name: str) -> bool:
@@ -209,9 +217,18 @@ async def callback_handler(callback_query: types.CallbackQuery) -> None:
 
     if data.startswith("select_device:"):
         device_id = data.split(":", 1)[1]
+        device = await sync_to_async(Device.objects.filter(device_id=device_id).first)()
+        status = "🟢 online" if device and device.connection_status else "🔴 offline"
+        last_connected = "Noma’lum"
+        if device and device.last_connected:
+            last_connected = timezone.localtime(device.last_connected).strftime("%Y-%m-%d %H:%M:%S")
+
         await callback_query.message.edit_text(
-            f"✅ <b>{device_id}</b> tanlandi. Endi buyruqni tanlang:",
-            reply_markup=build_device_control_keyboard(device_id),
+            f"✅ <b>{device_id}</b> tanlandi.\n"
+            f"Holat: {status}\n"
+            f"Ulanish vaqti: <code>{last_connected}</code>\n\n"
+            "Endi buyruqni tanlang:",
+            reply_markup=build_device_control_keyboard(device_id, is_admin_user(chat_id)),
         )
         return
 
@@ -225,6 +242,9 @@ async def callback_handler(callback_query: types.CallbackQuery) -> None:
         command = command_map.get(command_key)
         if not command:
             await callback_query.message.answer("❌ Noto‘g‘ri buyruq.")
+            return
+        if command_key == "update" and not is_admin_user(chat_id):
+            await callback_query.message.answer("❌ Bu buyruq faqat admin uchun mavjud.")
             return
         if await send_device_command(device_id, command):
             await callback_query.message.answer(f"✅ {device_id} ga <b>{command}</b> buyrug‘i yuborildi.")
